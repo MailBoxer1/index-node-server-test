@@ -1,0 +1,56 @@
+
+version: '3.8'
+
+services:
+  node-server:
+    build:
+      context: .
+      dockerfile: /absolute/path/to/Dockerfile
+    container_name: node-server
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - /absolute/path/to/app:/app
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # База данных (опционально)
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - /absolute/path/to/postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Redis для кэширования (опционально)
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - /absolute/path/to/redis-data:/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
